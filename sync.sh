@@ -1,8 +1,14 @@
 #!/bin/bash
 
+function cleanHome {
+	echo "> cleanHome"
+	rm -rf ~/.config/awesome 	&> /dev/null
+	rm -rf ~/.zshrc			&> /dev/null
+}
+
 function clean {
 	echo "> clean"
-	rm /tmp/awesome-copycats
+	rm -rf /tmp/awesome-copycats &> /dev/null
 }
 
 function awesomeUpdate {
@@ -25,7 +31,10 @@ function symlinks {
 git fetch
 
 clean
-if [[ $1 != "--no-awesome-update" ]]; then
+if [[ "$@" == *"--reset"* ]]; then
+        cleanHome
+fi
+if [[ "$@" != *"--no-awesome-update"* ]]; then
 	awesomeUpdate
 fi
 symlinks
