@@ -52,9 +52,9 @@ function awesomeUpdate {
 	echo "> awesomeUpdate"
 	__verbose git clone \
 		--recurse-submodules --remote-submodules --depth 1 -j 2 \
-		https://github.com/lcpz/awesome-copycats.git /tmp/awesome-copycats 
-	mkdir -p ~/.config/awesome
-	__verbose cp -r /tmp/awesome-copycats/awesome ~/.config/awesome
+		https://github.com/lcpz/awesome-copycats.git /tmp/awesome-copycats
+	__verbose mkdir -p ~/.config/awesome
+	__verbose cp -r /tmp/awesome-copycats/* ~/.config/awesome
 	__verbose rm -rf /tmp/awesome-copycats
 }
 
