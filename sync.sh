@@ -72,7 +72,7 @@ fi
 if [[ "$@" != *"--no-awesome-update"* ]]; then
 	awesomeUpdate 	$@
 fi
-if [[ "$@" == *"--detDefs"* ]]; then
+if [[ "$@" == *"--setDefs"* ]]; then
     setDefaults 	$@
 fi
 symlinks
