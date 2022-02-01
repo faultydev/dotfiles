@@ -20,7 +20,7 @@ function install {
 	echo "# installing packages"
 	__verbose $INSTALL_STR $PACKAGES
 	echo "# installing ohmyzsh"
-	__verbose sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 	
+	sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 	
 	echo "# installing pfetch"
 	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch 		
 	cd /tmp/dotfiles-pfetch; sudo make install
