@@ -54,14 +54,15 @@ function awesomeUpdate {
 		--recurse-submodules --remote-submodules --depth 1 -j 2 \
 		https://github.com/lcpz/awesome-copycats.git /tmp/awesome-copycats 
 	mkdir -p ~/.config/awesome
-	mv /tmp/awesome-copycats ~/.config/awesome
-	cp ./configfiles/awesome-rc.lua ~/.config/awesome/rc.lua
+	__verbose cp -r /tmp/awesome-copycats/awesome ~/.config/awesome
 	__verbose rm -rf /tmp/awesome-copycats
 }
 
-function links {
-	echo "> links"
-	__verbose ln configfiles/zshrc ~/.zshrc
+function files {
+	echo "> files"
+	for file in $(find ./configfiles/ -type f); do
+		__verbose ln -sf $CWD/$file ~/${file#./configfiles/}
+	done
 }
 
 __verbose git fetch
@@ -70,38 +71,21 @@ if [[ "$@" == *"-v"* ]]; then
 	VERBOSE=1
 fi
 
-#array of functions to run (default)
-run=(install awesomeUpdate links setDefaults)
+run=($@)
 
-# if arguments are given, run only those functions
-if [[ $# -gt 0 ]]; then
-	run=()
-	if [[ "$@" == *"clean"* ]]; then
-		run+=(clean cleanHome)
+# remove any arguments that have a leading '-'
+for (( i=0; i<${#run[@]}; i++ )); do
+	if [[ ${run[$i]} == -* ]]; then
+		unset run[$i]
 	fi
-	if [[ "$@" == *"packages"* ]]; then
-		run+=(install)
-	fi
-	if [[ "$@" == *"awesome-update"* ]]; then
-		run+=(awesomeUpdate)
-	fi
-	if [[ "$@" == *"links"* ]]; then
-		run+=(links)
-	fi
-	if [[ "$@" == *"defaults"* ]]; then
-		run+=(setDefaults)
-	fi
+done
 
-	# if run is empty, exit
-	if [[ ${#run[@]} -eq 0 ]]; then
-		echo "No valid arguments given"
-		exit 1
-	fi
+# if no functions are left, run default
+if [ ${#run[@]} -eq 0 ]; then
+	run=(install awesomeUpdate files setDefaults)
 fi
 
 #run functions
 for i in "${run[@]}"; do
 	$i
 done
-
-echo "done!"
