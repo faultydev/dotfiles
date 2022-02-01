@@ -26,7 +26,8 @@ function install {
 	__verbose git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 	echo "# installing pfetch"
 	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch 		
-	cd /tmp/dotfiles-pfetch; sudo make install
+	cd /tmp/dotfiles-pfetch
+	sudo mv pfetch /usr/local/bin/
 	__verbose rm -rf /tmp/dotfiles-pfetch
 	cd $CWD
 }
