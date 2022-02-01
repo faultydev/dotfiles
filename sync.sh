@@ -45,6 +45,7 @@ function cleanHome {
 function clean {
 	echo "> clean"
 	__verbose rm -rf /tmp/awesome-copycats
+	__verbose rm -rf /tmp/dotfiles-pfetch
 }
 
 function awesomeUpdate {
@@ -60,27 +61,47 @@ function awesomeUpdate {
 
 function links {
 	echo "> links"
-	ln configfiles/zshrc ~/.zshrc
+	__verbose ln configfiles/zshrc ~/.zshrc
 }
 
 __verbose git fetch
-
-clean 
+ 
 if [[ "$@" == *"-v"* ]]; then
 	VERBOSE=1
 fi
-if [[ "$@" == *"--reset"* ]]; then
-	cleanHome 		$@
+
+#array of functions to run (default)
+run=(install awesomeUpdate links setDefaults)
+
+# if arguments are given, run only those functions
+if [[ $# -gt 0 ]]; then
+	run=()
+	if [[ "$@" == *"clean"* ]]; then
+		run+=(clean cleanHome)
+	fi
+	if [[ "$@" == *"packages"* ]]; then
+		run+=(install)
+	fi
+	if [[ "$@" == *"awesome-update"* ]]; then
+		run+=(awesomeUpdate)
+	fi
+	if [[ "$@" == *"links"* ]]; then
+		run+=(links)
+	fi
+	if [[ "$@" == *"defaults"* ]]; then
+		run+=(setDefaults)
+	fi
+
+	# if run is empty, exit
+	if [[ ${#run[@]} -eq 0 ]]; then
+		echo "No valid arguments given"
+		exit 1
+	fi
 fi
-if [[ "$@" == *"--install"* ]]; then
-    install 		$@
-fi
-if [[ "$@" != *"--no-awesome-update"* ]]; then
-	awesomeUpdate 	$@
-fi
-if [[ "$@" == *"--setDefs"* ]]; then
-    setDefaults 	$@
-fi
-links
+
+#run functions
+for i in "${run[@]}"; do
+	$i
+done
 
 echo "done!"
