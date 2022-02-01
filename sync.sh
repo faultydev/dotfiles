@@ -9,6 +9,8 @@ function __verbose {
 	if [ $VERBOSE -eq 1 ]; then
 		$@
 	else
+		#$@ 2>&1 > /dev/null #output only errors
+
 		$@ &> /dev/null
 	fi
 }
@@ -22,6 +24,7 @@ function install {
 	echo "# installing pfetch"
 	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch 		
 	cd /tmp/dotfiles-pfetch; sudo make install
+	__verbose rm -rf /tmp/dotfiles-pfetch
 	cd $CWD
 }
 
@@ -38,7 +41,7 @@ function cleanHome {
 
 function clean {
 	echo "> clean"
-	__verbose rm -rf /tmp/awesome-copycats 	
+	__verbose rm -rf /tmp/awesome-copycats
 }
 
 function awesomeUpdate {
@@ -52,22 +55,22 @@ function awesomeUpdate {
 	__verbose rm -rf /tmp/awesome-copycats
 }
 
-function symlinks {
+function links {
 	echo "> links"
 	ln configfiles/zshrc ~/.zshrc
 }
 
-git fetch
+__verbose git fetch
 
 clean 
 if [[ "$@" == *"-v"* ]]; then
 	VERBOSE=1
 fi
 if [[ "$@" == *"--reset"* ]]; then
-	cleanHome 	$@
+	cleanHome 		$@
 fi
 if [[ "$@" == *"--install"* ]]; then
-    install 	$@
+    install 		$@
 fi
 if [[ "$@" != *"--no-awesome-update"* ]]; then
 	awesomeUpdate 	$@
@@ -75,6 +78,6 @@ fi
 if [[ "$@" == *"--setDefs"* ]]; then
     setDefaults 	$@
 fi
-symlinks
+links
 
 echo "done!"
