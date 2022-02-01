@@ -4,10 +4,52 @@ INSTALL_STR="${INSTALL_STRING_NO_INPUT:-sudo apt install -y}"
 PACKAGES="${INSTALL_PACKAGES_STRING:-zsh awesome}"
 CWD=$(pwd)
 VERBOSE=0
+SILENCE=0
+
+# functions prefixed with "__" are internal functions
+
+function __print {
+	# if $1 is ignore: always print
+	# print message
+	if [ "$1" == "ignore" ]; then
+		echo "${@:2}"
+		return
+	fi
+	if [ $SILENCE -eq 0 ]; then
+		echo $@
+	fi
+}
+
+function __doCheck {
+	# check if sudo is open
+	if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ]; then
+		__print ignore "no sudo access (you need persitent sudo)"
+		sudo echo "sudo access granted"
+		#check again
+		if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ]; then
+			exit 1
+		fi
+	fi
+	# cwd
+	if [[ ! -d $CWD ]]; then
+		__print ignore "Current working directory is invalid" 1>&2
+		exit 1
+	fi
+	# check if script is in cwd
+	if [ ! -f "${CWD}/sync.sh" ]; then
+		__print ignore "sync.sh not found in ${CWD}" 1>&2
+		exit 1
+	fi
+	# check if dir configfiles exists
+	if [ ! -d "${CWD}/configfiles" ]; then
+		__print ignore "configfiles directory not found in ${CWD}" 1>&2
+		exit 1
+	fi
+}
 
 function __verbose {
 	if [ $VERBOSE -eq 1 ]; then
-		echo "[ $@ ]"
+		__print "[ $@ ]"
 		$@
 	else
 		#$@ 2>&1 > /dev/null #output only errors
@@ -17,16 +59,16 @@ function __verbose {
 }
 
 function install {
-	echo "> install"
-	echo "# installing packages"
+	__print "> $FUNCNAME"
+	__print "# installing packages"
 	__verbose $INSTALL_STR $PACKAGES
-	echo "# installing ohmyzsh"
+	__print "# installing ohmyzsh"
 	__verbose git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
 	__verbose cp ~/.zshrc ~/.zshrc.orig
-	echo "# installing zsh plugins"
+	__print "# installing zsh plugins"
 	__verbose git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions	
 	__verbose git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-	echo "# installing pfetch"
+	__print "# installing pfetch"
 	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch 		
 	cd /tmp/dotfiles-pfetch
 	sudo mv pfetch /usr/local/bin/
@@ -35,25 +77,14 @@ function install {
 }
 
 function setDefaults {
-	echo "> setDefaults"
-	sudo chsh -s /bin/zsh $(whoami)
-}
-
-function cleanHome {
-	echo "> cleanHome"
-	__verbose rm -rf ~/.config/awesome 	
-	__verbose rm -rf ~/.zshrc
-	__verbose rm -rf ~/.oh-my-zsh
-}
-
-function clean {
-	echo "> clean"
-	__verbose rm -rf /tmp/awesome-copycats
-	__verbose rm -rf /tmp/dotfiles-pfetch
+	__print "> $FUNCNAME"
+	__print "# setting zsh as default shell"
+	__verbose sudo chsh -s /bin/zsh $(whoami)
 }
 
 function awesomeUpdate {
-	echo "> awesomeUpdate"
+	__print "> $FUNCNAME"
+	__print "# updating awesome-copycats"
 	__verbose git clone \
 		--recurse-submodules --remote-submodules --depth 1 -j 2 \
 		https://github.com/lcpz/awesome-copycats.git /tmp/awesome-copycats
@@ -63,24 +94,53 @@ function awesomeUpdate {
 }
 
 function files {
-	echo "> files"
+	__print "> $FUNCNAME"
 	for file in $(find ./configfiles/ -type f); do
+		__print "# linking ${file##*/}"
 		__verbose ln -sf $CWD/$file ~/${file#./configfiles/}
 	done
 }
 
-__verbose git fetch
- 
+function clean {
+	__print "> $FUNCNAME"
+	__print "# cleaning awesome-copycats tmp dir"
+	__verbose rm -rf /tmp/awesome-copycats
+	__print "# cleaning pfetch tmp dir"
+	__verbose rm -rf /tmp/dotfiles-pfetch
+
+	for file in $(find ./configfiles/ -type f); do
+		__print "# removing ${file}"
+		__verbose rm ~/${file#./configfiles/}
+	done
+}
+
+################################################################################
+
+if [[ "$@" == *"--silent"* ]]; then
+	SILENCE=1
+	VERBOSE=0
+fi
+
 if [[ "$@" == *"-v"* ]]; then
+	SILENCE=0
 	VERBOSE=1
 fi
 
-run=($@)
+# skipCheck
+if [[ "$@" == *"--skip-check"* ]]; then
+	__print "skipping check"
+else
+	__doCheck
+fi
 
-# remove any arguments that have a leading '-'
-for (( i=0; i<${#run[@]}; i++ )); do
-	if [[ ${run[$i]} == -* ]]; then
-		unset run[$i]
+run=($@)
+args=()
+
+# remove any arguments that have a leading '-' or '--' and add them to args
+for argument in "${run[@]}"; do
+	if [[ $argument == -* ]]; then
+		args+=("$argument")
+		run=(${run[@]//$argument})
 	fi
 done
 
@@ -89,7 +149,20 @@ if [ ${#run[@]} -eq 0 ]; then
 	run=(install awesomeUpdate files setDefaults)
 fi
 
+# remove functions that are defined in args like "--no-**"
+for (( i=0; i<${#args[@]}; i++ )); do
+	for (( j=0; j<${#run[@]}; j++ )); do
+		if [[ ${args[$i]} == --no-${run[$j]} ]]; then
+			unset run[$j]
+		fi
+	done
+done
+
 #run functions
 for i in "${run[@]}"; do
-	$i
+	if [ $SILENCE -eq 1 ]; then
+		$i > /dev/null 2>&1
+	else
+		$i
+	fi
 done
