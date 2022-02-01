@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function clean {
+	echo "> clean"
 	rm /tmp/awesome-copycats
 }
 
