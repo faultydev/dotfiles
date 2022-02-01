@@ -7,6 +7,7 @@ VERBOSE=0
 
 function __verbose {
 	if [ $VERBOSE -eq 1 ]; then
+		echo "[ $@ ]"
 		$@
 	else
 		#$@ 2>&1 > /dev/null #output only errors
@@ -20,7 +21,8 @@ function install {
 	echo "# installing packages"
 	__verbose $INSTALL_STR $PACKAGES
 	echo "# installing ohmyzsh"
-	curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh 
+	__verbose git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
+	__verbose cp ~/.zshrc ~/.zshrc.orig
 	echo "# installing zsh plugins"
 	__verbose git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions	
 	__verbose git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
@@ -40,7 +42,8 @@ function setDefaults {
 function cleanHome {
 	echo "> cleanHome"
 	__verbose rm -rf ~/.config/awesome 	
-	__verbose rm -rf ~/.zshrc			
+	__verbose rm -rf ~/.zshrc
+	__verbose rm -rf ~/.oh-my-zsh
 }
 
 function clean {
