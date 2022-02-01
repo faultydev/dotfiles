@@ -20,7 +20,10 @@ function install {
 	echo "# installing packages"
 	__verbose $INSTALL_STR $PACKAGES
 	echo "# installing ohmyzsh"
-	sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 	
+	curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh 
+	echo "# installing zsh plugins"
+	__verbose git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions	
+	__verbose git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 	echo "# installing pfetch"
 	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch 		
 	cd /tmp/dotfiles-pfetch; sudo make install
