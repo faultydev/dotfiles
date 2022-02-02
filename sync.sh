@@ -3,8 +3,8 @@
 INSTALL_STR="${INSTALL_STRING_NO_INPUT:-sudo apt install -y}"
 PACKAGES="${INSTALL_PACKAGES_STRING:-zsh awesome}"
 CWD=$(pwd)
-VERBOSE=${V:-0}
-SILENCE=${SILENT:-0}
+VERBOSE=0
+SILENCE=0
 
 # functions prefixed with "__" are internal functions
 
@@ -21,15 +21,15 @@ __print () {
 }
 
 __verbose () {
-	if [ $VERBOSE = 0 ]; then
+	if [ "$VERBOSE" = "0" ]; then
 		#$@ 2>&1 > /dev/null #output only errors
-		$@ &> /dev/null
+		$@ > /dev/null 2>&1
 	fi
-	if [ $VERBOSE = 1 ]; then
+	if [ "$VERBOSE" = "1" ]; then
 		__print "[ $@ ]"
 		$@
 	fi
-	if [ $VERBOSE = 2 ]; then
+	if [ "$VERBOSE" = "2" ]; then
 		echo "[ dry: $@ ]"
 	fi
 	wait
@@ -69,7 +69,7 @@ __doCheck (){
 
 install () {
 	__print "# installing packages"
-	__verbose $INSTALL_STR $PACKAGES </dev/null
+	__verbose $INSTALL_STR $PACKAGES
 	__print "# installing ohmyzsh"
 	__verbose git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
 	__verbose cp ~/.zshrc ~/.zshrc.orig
@@ -121,32 +121,26 @@ clean () {
 	done
 }
 
+empty () {
+	__print "# empty function #"
+}
+
 ################################################################################
 
-# shell script array
-run=""
-args=""
+run="$@"
 
-# if arg is prefixed with "-" or "--" it is a flag and not a parameter
-for arg in $@; do
-	cut_str=""
-	echo $arg | grep -q "-"
-	if [ $? -eq 0 ]; then
-		cut_str="-"
+# parse tags
+for arg in $run; do
+	if [ "$arg" = "-v" ]; then
+		VERBOSE=1
+		__print ignore "verbose mode"
+		run=$(echo $run | sed "s/$arg//")
 	fi
-	if [ "$cut_str" = *"-"* ]; then
-		# __print ignore "flag: $arg"
-		args="${args} $arg"
-	else
-		# __print ignore "parameter: $arg"
-		run="${run} $arg"
+	if [ "$arg" = "-s" ]; then
+		SILENCE=1
+		run=$(echo $run | sed "s/$arg//")
 	fi
 done
-
-# verbose
-if [ "$args" = "-v" ]; then
-	VERBOSE=1
-fi
 
 # if no items in run, run def
 if [ -z "$run" ]; then
