@@ -20,6 +20,17 @@ function __print {
 	fi
 }
 
+function __verbose {
+	if [ $VERBOSE -eq 1 ]; then
+		__print "[ $@ ]"
+		$@
+	else
+		#$@ 2>&1 > /dev/null #output only errors
+
+		$@ &> /dev/null
+	fi
+}
+
 function __doCheck {
 	# check if sudo is open
 	if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ]; then
@@ -44,17 +55,6 @@ function __doCheck {
 	if [ ! -d "${CWD}/configfiles" ]; then
 		__print ignore "configfiles directory not found in ${CWD}" 1>&2
 		exit 1
-	fi
-}
-
-function __verbose {
-	if [ $VERBOSE -eq 1 ]; then
-		__print "[ $@ ]"
-		$@
-	else
-		#$@ 2>&1 > /dev/null #output only errors
-
-		$@ &> /dev/null
 	fi
 }
 
