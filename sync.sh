@@ -21,20 +21,18 @@ __print () {
 }
 
 __verbose () {
-	if [ $VERBOSE -eq 0 ]; then
+	if [ $VERBOSE = 0 ]; then
 		#$@ 2>&1 > /dev/null #output only errors
 		$@ &> /dev/null
-		return
 	fi
-	if [ $VERBOSE -eq 1 ]; then
+	if [ $VERBOSE = 1 ]; then
 		__print "[ $@ ]"
 		$@
-		return
 	fi
-	if [ $VERBOSE -eq 2 ]; then
+	if [ $VERBOSE = 2 ]; then
 		echo "[ dry: $@ ]"
-		return
 	fi
+	wait
 }
 
 __doCheck (){
@@ -71,18 +69,21 @@ __doCheck (){
 
 install () {
 	__print "# installing packages"
-	__verbose $INSTALL_STR $PACKAGES
+	__verbose $INSTALL_STR $PACKAGES </dev/null
 	__print "# installing ohmyzsh"
 	__verbose git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
 	__verbose cp ~/.zshrc ~/.zshrc.orig
+	
 	__print "# installing zsh plugins"
-	__verbose git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions	
+	__verbose git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 	__verbose git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+	
 	__print "# installing pfetch"
-	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch 		
+	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch
 	cd /tmp/dotfiles-pfetch
 	sudo mv pfetch /usr/local/bin/
 	__verbose rm -rf /tmp/dotfiles-pfetch
+	
 	cd $CWD
 }
 
