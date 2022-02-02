@@ -12,7 +12,7 @@ __print () {
 	# if $1 is ignore: always print
 	# print message
 	if [ "$1" = "ignore" ]; then
-		echo "${@:2}"
+		echo "$@" | cut -c8-
 		return
 	fi
 	if [ $SILENCE = 0 ]; then
@@ -23,7 +23,6 @@ __print () {
 __verbose () {
 	if [ $VERBOSE -eq 0 ]; then
 		#$@ 2>&1 > /dev/null #output only errors
-
 		$@ &> /dev/null
 		return
 	fi
@@ -127,31 +126,25 @@ clean () {
 run=""
 args=""
 
-# all arguments should go into args -*
-for arg in $run; do
-	if [ "$arg" = -* ]; then
-		args="$args $arg"
+# if arg is prefixed with "-" or "--" it is a flag and not a parameter
+for arg in $@; do
+	cut_str=""
+	echo $arg | grep -q "-"
+	if [ $? -eq 0 ]; then
+		cut_str="-"
+	fi
+	if [ "$cut_str" = *"-"* ]; then
+		# __print ignore "flag: $arg"
+		args="${args} $arg"
+	else
+		# __print ignore "parameter: $arg"
+		run="${run} $arg"
 	fi
 done
 
-# all non-arguments should go into run
-for arg in $run; do
-	if [ ! "$arg" = -* ]; then
-		run="$run $arg"
-	fi
-done
-
-# if arg -v or --verbose is given, set verbose to 1
-if [ "$args" = *"-v"* ]; then
+# verbose
+if [ "$args" = "-v" ]; then
 	VERBOSE=1
-fi
-if [ "$args" = *"--verbose"* ]; then
-	VERBOSE=1
-fi
-
-# silent mode
-if [ "$args" = *"-s"* ]; then
-	SILENCE=1
 fi
 
 # if no items in run, run def
