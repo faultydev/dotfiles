@@ -63,6 +63,11 @@ __doCheck (){
 		__print ignore "configfiles directory not found in ${CWD}" 1>&2
 		exit 1
 	fi
+	# check for git
+	if [ ! -x "$(which git)" ]; then
+		__print ignore "git not found, added to packages" 1>&2
+		PACKAGES="${PACKAGES} git"
+	fi
 }
 
 install () {
