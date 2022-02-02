@@ -23,20 +23,22 @@ __verbose () {
 		#$@ 2>&1 > /dev/null #output only errors
 
 		$@ &> /dev/null
-		return
 	fi
 	if [ $VERBOSE -eq 1 ]; then
 		__print "[ $@ ]"
 		$@
-		return
 	fi
 	if [ $VERBOSE -eq 2 ]; then
 		echo "[ dry: $@ ]"
-		return
 	fi
+	wait
 }
 
-__print "# cloning dotfiles"; __verbose git clone https://github.com/faultydev/dotfiles ~/.dotfiles; __verbose cd ~/.dotfiles; __print "# executing sync.sh"; __verbose sh sync.sh
+__print "# cloning dotfiles"
+__verbose git clone https://github.com/faultydev/dotfiles ~/.dotfiles
+__verbose cd ~/.dotfiles
+__print "# executing sync.sh"
+__verbose sh sync.sh
 
 __print "OK"
 exit 0
