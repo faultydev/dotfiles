@@ -10,7 +10,7 @@ __print () {
 	# if $1 is ignore: always print
 	# print message
 	if [ "$1" = "ignore" ]; then
-		echo "${@:2}"
+		echo "$@" | cut -c8-
 		return
 	fi
 	if [ $SILENCE = 0 ]; then
@@ -19,16 +19,15 @@ __print () {
 }
 
 __verbose () {
-	if [ $VERBOSE -eq 0 ]; then
+	if [ "$VERBOSE" = "0" ]; then
 		#$@ 2>&1 > /dev/null #output only errors
-
-		$@ &> /dev/null
+		$@ > /dev/null 2>&1
 	fi
-	if [ $VERBOSE -eq 1 ]; then
+	if [ "$VERBOSE" = "1" ]; then
 		__print "[ $@ ]"
 		$@
 	fi
-	if [ $VERBOSE -eq 2 ]; then
+	if [ "$VERBOSE" = "2" ]; then
 		echo "[ dry: $@ ]"
 	fi
 	wait
