@@ -1,7 +1,7 @@
 #!/bin/sh
 
 INSTALL_STR="${INSTALL_STRING_NO_INPUT:-sudo apt install -y}"
-PACKAGES="${INSTALL_PACKAGES_STRING:-zsh awesome}"
+PACKAGES="${INSTALL_PACKAGES_STRING:-zsh awesome nvim kitty}"
 CWD=$(pwd)
 VERBOSE=0
 SILENCE=0
@@ -37,12 +37,12 @@ __verbose () {
 
 __doCheck (){
 	# check if sudo is open
-	if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ]; then
-		__print ignore "no sudo access (you need persitent sudo)"
-		sudo echo "sudo access granted"
-		#check again
-		if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ]; then
-			exit 1
+	if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ] && [ "$1" != "-v" ]; then
+    __print ignore "no sudo access (you need persitent sudo)"
+    sudo echo "sudo access granted"
+    #check again
+    if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ]; then
+      exit 1
 		fi
 	fi
 	# cwd
@@ -90,6 +90,11 @@ install () {
 setDefaults () {
 	__print "# setting zsh as default shell"
 	__verbose sudo chsh -s /bin/zsh $(whoami)
+}
+
+systemEdits () { # sets defaults for system level
+  __print "# disabling the hardware speaker (beep)"
+  sudo echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist
 }
 
 awesomeUpdate () {
@@ -147,7 +152,7 @@ if [ -z "$run" ]; then
 	run="install awesomeUpdate files setDefaults"
 fi
 
-__doCheck
+__doCheck $1
 
 # for every item in run, run it (not an array but string, split by spaces)
 for item in $run; do
