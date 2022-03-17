@@ -1,7 +1,7 @@
 #!/bin/sh
 
 INSTALL_STR="${INSTALL_STRING_NO_INPUT:-sudo apt install -y}"
-PACKAGES="${INSTALL_PACKAGES_STRING:-zsh awesome nvim kitty}"
+PACKAGES="${INSTALL_PACKAGES_STRING:-zsh awesome neovim kitty}"
 CWD=$(pwd)
 VERBOSE=0
 SILENCE=0
@@ -107,6 +107,12 @@ awesomeUpdate () {
 	__verbose rm -rf /tmp/awesome-copycats
 }
 
+directories () {
+  __verbose mkdir -p ~/.config/awesome
+  __verbose mkdir -p ~/.config/nvim
+  __verbose mkdir -p ~/.config/kitty
+}
+
 files () {
 	for file in $(find ./configfiles/ -type f); do
 		__print "# linking ${file##*/}"
@@ -149,7 +155,7 @@ done
 
 # if no items in run, run def
 if [ -z "$run" ]; then
-	run="install awesomeUpdate files setDefaults"
+	run="install awesomeUpdate directories files setDefaults"
 fi
 
 __doCheck $1
