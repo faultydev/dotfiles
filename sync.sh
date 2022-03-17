@@ -1,6 +1,6 @@
 #!/bin/sh
 
-INSTALL_STR="${INSTALL_STRING_NO_INPUT:-sudo apt install -y}"
+INSTALL_STR="${INSTALL_STRING_NO_INPUT:-pacman -S --noconfirm}"
 PACKAGES="${INSTALL_PACKAGES_STRING:-zsh awesome neovim kitty}"
 CWD=$(pwd)
 VERBOSE=0
