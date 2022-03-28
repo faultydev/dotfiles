@@ -8,9 +8,9 @@ source $ZSH/oh-my-zsh.sh
 
 # ALIASES
 alias ix="curl -F 'f:1=<-' ix.io"
-alias chis="cat ~/.zsh_history | less +G"
-alias tmpfile="nvim /tmp/$(date +%H:%M_%d-%m-%Y)"
+alias tmpfile="$EDITOR /tmp/$(date +%H:%M_%d-%m-%Y)"
 alias q="exit"
+alias open="xdg-open"
 
 # COSMETICS
 pfetch

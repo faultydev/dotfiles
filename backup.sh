@@ -1,68 +1,29 @@
 #!/bin/sh
 
-###################
-# CREATE A BACKUP #
-# v1.0            #
-###################
+source ./cfg.conf
+source ./lib.sh
 
-ORIGIN_DIR=$(pwd)
-VERBOSE=1
-SILENCE=0
-tarname="backup_$(date +%Y-%m-%d_%H.%M.%S).tar"
-
-# functions prefixed with "__" are internal functions
-
-__print () {
-	# if $1 is ignore: always print
-	# print message
-	if [ "$1" = "ignore" ]; then
-		echo "$@" | cut -c8-
-		return
-	fi
-	if [ $SILENCE = 0 ]; then
-		echo $@
-	fi
-}
-
-__verbose () {
-	if [ "$VERBOSE" = "0" ]; then
-		#$@ 2>&1 > /dev/null #output only errors
-		$@ > /dev/null 2>&1
-	fi
-	if [ "$VERBOSE" = "1" ]; then
-		__print "[ $@ ]"
-		$@
-	fi
-	if [ "$VERBOSE" = "2" ]; then
-		echo "[ dry: $@ ]"
-	fi
-	wait
-}
-
-create_tar () {
+doTar () {
     cd ~
-    __print "creating a tarball of important directories"
+    __print "# creating a tarball of important directories"
     # Documents, Pictures, Music, Videos, code
-    __verbose tar -czvf $tarname \
+    __verbose tar -czvf $TAR_NAME \
         --exclude=".git" \
         --exclude=".pio/lib*" \
         --exclude="Documents/Backups" \
         --exclude="node_modules" \
         --exclude="build*" \
         --exclude="dist*" \
-        Documents Pictures Music Videos code 
-    mv $tarname $ORIGIN_DIR
-    __print "done"
-    cd $ORIGIN_DIR
+        $BACKUP_DIRECTORIES
+    __verbose mv $TAR_NAME $CWD
+    __print "# done"
+    cd $CWD
 }
 
-compress () {
-    __print "compressing the tarball"
-    __verbose xz -z $tarname
-    __print "done"
-}
+__parseArgs $@
 
-#run all args
-for i in "$@"; do 
-    $i
+# for every item in run, run it (not an array but string, split by spaces)
+for item in $__parsed; do
+	__print "> $item"
+	$item
 done
