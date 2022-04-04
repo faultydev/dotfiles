@@ -1,7 +1,7 @@
 #!/bin/sh
 
-source ./cfg.conf
-source ./lib.sh
+. ./cfg.conf
+. ./lib.sh
 
 ####
 
@@ -37,6 +37,10 @@ setDefaults () {
 	if [ "$SHELL" != "/bin/zsh" ]; then
 		__verbose $DO_AS_SU chsh -s /bin/zsh $(whoami)
 	fi
+	__print "# setting tap to click (for laptops)"
+	__verbose xinput set-prop 'ALP0016:00 044E:1215' 'libinput Tapping Enabled' 1
+	__print "# setting up natural scolling"
+	__verbose xinput set-prop 'ALP0016:00 044E:1215' 'libinput Natural Scrolling Enabled' 1
 }
 
 files () {

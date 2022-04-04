@@ -100,11 +100,14 @@ local themes = {
 local chosen_theme = themes[2]
 local modkey       = "Mod4"
 local altkey       = "Mod1"
-local terminal     = "kitty" -- "konsole" -- "urxvtc"
+local terminal     = "kitty"
 local vi_focus     = false -- vi-like client focus https://github.com/lcpz/awesome-copycats/issues/275
 local cycle_prev   = true  -- cycle with only the previously focused client or all https://github.com/lcpz/awesome-copycats/issues/274
 local editor       = os.getenv("EDITOR") or "nvim"
 local browser      = "firefox"
+
+awful.spawn("mate-screensaver")
+local screensaver  = "mate-screensaver-command -l"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "browse", "code", "talk" }
@@ -194,7 +197,7 @@ awful.util.mymainmenu = freedesktop.menu.build {
     after = {
         { "Open terminal", terminal },
         -- other triads can be put here
-   	 { "Lock", function() awful.spawn("slock") end}
+   	 { "Lock", function() awful.spawn(screensaver) end}
     }
 }
 
@@ -269,13 +272,9 @@ globalkeys = mytable.join(
     -- Destroy all notifications
     awful.key({ "Control",           }, "space", function() naughty.destroy_all_notifications() end,
               {description = "destroy all notifications", group = "hotkeys"}),
-    -- Take a screenshot
-    -- https://github.com/lcpz/dots/blob/master/bin/screenshot
-    awful.key({ altkey }, "p", function() os.execute("screenshot") end,
-              {description = "take a screenshot", group = "hotkeys"}),
 
     -- X screen locker
-    awful.key({ altkey, "Control" }, "l", function () os.execute(scrlocker) end,
+    awful.key({ modkey }, "l", function () os.execute(screensaver) end,
               {description = "lock screen", group = "hotkeys"}),
 
     -- Show help
