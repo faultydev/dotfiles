@@ -1,0 +1,30 @@
+__is_arch() {
+	. /etc/os-release
+	if [ "$ID" = "arch" ]; then return 0; else return 1; fi
+}
+
+pkg_once() {
+	if [ ! __is_arch ]; then
+		printf "This command is only for Arch Linux.\n"
+		return
+	fi	       
+	if [ ! -n "$1" ]; then
+		printf "Usage: pkg_once <PACKAGE_NAME> [command]\n"
+		printf "command is optional; if there is no command the package name is ran\n"
+		return
+	fi
+	printf "Installing $1...\n"
+	yay -S --noconfirm $1 > /dev/null 
+
+	if [ ! -n "$2" ]; then $1; else $2; fi
+	printf "Remoiving $1..."
+	yay -R --noconfirm $1 > /dev/null
+	echo "done.\n"
+}
+
+rando () {
+	case $1 in
+		*|d|default) tr -dc A-Za-z0-9 </dev/urandom | head -c $2 ; echo '' ;;
+		s|special) tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c $2  ; echo ;;
+	esac
+}
