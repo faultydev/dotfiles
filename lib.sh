@@ -11,7 +11,7 @@ __print () {
 		echo "$@" | cut -c8-
 		return
 	fi
-	if [ $SILENCE = 0 ]; then
+	if [ "$SILENCE" = "0" ]; then
 		echo $@
 	fi
 }
@@ -94,7 +94,7 @@ __detectPackageManager () {
   if [ -x "$(which apk 2>&1)" ]; then
     pm="apk"
     pm_install="add"
-    pm_noprompt="-n"
+    pm_noprompt=""
   fi
   # apt-get
   if [ -x "$(which apt-get 2>&1)" ]; then
@@ -114,7 +114,8 @@ __detectPackageManager () {
     fi
   fi
 }
-__doSyncCheck (){
+
+__doSyncCheck () {
 	# check if sudo is open
 	if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ] && [ "$1" != "-v" ]; then
     __print ignore "no sudo access (you need persitent sudo)"

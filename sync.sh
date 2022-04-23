@@ -1,7 +1,10 @@
 #!/bin/sh
 
-. ./cfg.conf
+. ./cfg.sh
 . ./lib.sh
+
+# April-22 Version
+# Last edit: 14th of April
 
 ####
 
@@ -22,7 +25,7 @@ ext_packages () {
 	__print "# installing zsh plugins"
 	__verbose git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 	__verbose git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-	
+
 	__print "# installing pfetch"
 	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch
 	__verbose cd /tmp/dotfiles-pfetch

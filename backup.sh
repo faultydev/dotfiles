@@ -1,7 +1,7 @@
 #!/bin/sh
 
-source ./cfg.conf
-source ./lib.sh
+. ./cfg.sh
+. ./lib.sh
 
 doTar () {
     cd ~
