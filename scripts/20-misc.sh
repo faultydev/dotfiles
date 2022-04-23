@@ -7,7 +7,8 @@ linkFiles () {
   for file in $(find ./files/$1 -type f); do
     __print "# linking ${file}"
     __verbose mkdir -p ~/.config/$1
-    __verbose ln -sf $file ~/.config/$1/$(basename $file)
+    __verbose chmod +rx $file
+    __verbose ln -sf $CWD/$file ~/.config/$1/$(basename $file)
   done
 }
 
@@ -21,9 +22,7 @@ _script_main () {
 
 _script_clean () {
   for c in $configAvail; do
-    for file in $(find ./files/$c -type f); do
-      __print "# removing ${file}"
-      __verbose rm -f ~/.config/$c/${file#./files/$c/}
-    done
+    __print "# cleaning $c"
+    __verbose rm -rf ~/.config/$c
   done
 }

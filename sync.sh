@@ -3,10 +3,10 @@
 . ./cfg.sh
 . ./lib.sh
 
-# April-22 Version
-# Last edit: 14th of April
-
-####
+# ---------- ------ ---------- #
+# Version:   1.0 | Canyon Moon
+# Last edit: 24th of April
+# ---------------------------- #
 
 pm_packages () {
 	__print "# identifying package manager"
