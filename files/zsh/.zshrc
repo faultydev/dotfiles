@@ -23,7 +23,7 @@ alias ssh="kitty +kitten ssh"
 if [ $_ZSH_PREF_NO_PFETCH != 1 ]; then pfetch; fi
 
 else 
-PS1="$(whoami)@$(hostnamectl hostname) $ "
+PS1="$(whoami)@$(cat /etc/hostname) $ "
 fi
 
 alias q="exit"
