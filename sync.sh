@@ -46,11 +46,22 @@ setDefaults () {
 	__verbose xinput set-prop 'ALP0016:00 044E:1215' 'libinput Natural Scrolling Enabled' 1
 }
 
+## deprecated; use scripts
 files () {
+	__print "!! \e[1;31mDEPRECATED\e[0m !! \e[1;33muse scripts function instead\e[0m"
 	for file in $(find ./configfiles/ -type f); do
 		__print "# linking ${file##*/}"
 		__verbose mkdir -p ~/${file%/*}
 		__verbose ln -sf $CWD/$file ~/${file#./configfiles/}
+	done
+}
+
+## this is the replacement for files
+scripts () {
+	for script in $(find ./scripts/ -type f | sort -n); do
+		__print "# running ${script##*/}"
+		. $CWD/$script
+		_script_main $@
 	done
 }
 
@@ -60,9 +71,10 @@ clean () {
 	__print "# cleaning pfetch tmp dir"
 	__verbose rm -rf /tmp/dotfiles-pfetch
 
-	for file in $(find ./configfiles/ -type f); do
-		__print "# removing ${file}"
-		__verbose rm ~/${file#./configfiles/}
+	for script in $(find ./scripts/ -type f | sort -n); do
+		__print "# running ${script##*/} cleanup"
+		. $CWD/$script
+		_script_clean $@
 	done
 }
 
@@ -77,7 +89,7 @@ run="$__parsed"
 
 # if no items in run, run def
 if [ -z "$run" ]; then
-	run="pm_packages ext_packages setDefaults files"
+	run="pm_packages ext_packages setDefaults scripts"
 fi
 __doSyncCheck $1
 

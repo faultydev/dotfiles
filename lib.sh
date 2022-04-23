@@ -136,7 +136,7 @@ __doSyncCheck () {
 		exit 1
 	fi
 	# check if dir configfiles exists
-	if [ ! -d "${CWD}/configfiles" ]; then
+	if [ ! -d "${CWD}/files" ]; then
 		__print ignore "configfiles directory not found in ${CWD}" 1>&2
 		exit 1
 	fi
