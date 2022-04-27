@@ -45,6 +45,9 @@ set completeopt=noinsert,menuone,noselect
 Plug 'ncm2/ncm2-bufword'
 Plug 'ncm2/ncm2-path'
 
+"ncm2 js"
+"Plug 'ncm2/ncm2-tern',  {'do': 'npm install'}
+
 "Lovely tree."
 Plug 'preservim/nerdtree'
 

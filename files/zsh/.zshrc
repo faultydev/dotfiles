@@ -17,7 +17,7 @@ source ~/.zsh_scripts
 alias open="xdg-open"
 alias nobeep="sudo modprobe -r pcspkr"
 alias bl="sudo light -S"
-alias ssh="kitty +kitten ssh"
+alias kssh="kitty +kitten ssh"
 
 # COSMETICS
 if [ $_ZSH_PREF_NO_PFETCH != 1 ]; then pfetch; fi
