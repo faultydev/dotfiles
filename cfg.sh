@@ -2,7 +2,7 @@
 
 # packages to install
 # generally the package names are universal
-PACKAGES="zsh awesome neovim kitty alsa-utils"
+PACKAGES="zsh neovim kitty alsa-utils"
 
 # this string is used when the operating system couldn't be determined
 FALLBACK_INSTALL_STRING="pacman -S --noconfirm"
@@ -20,3 +20,5 @@ if [ -x "$(command -v doas)" ]; then
 else
   DO_AS_SU="${DO_AS_SU:-sudo}"
 fi
+
+GRAPHICAL=0

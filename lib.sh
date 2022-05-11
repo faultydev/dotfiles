@@ -4,6 +4,8 @@ CWD=$(pwd)
 VERBOSE=0
 SILENCE=0
 
+trap '__print "Exiting..."; exit' SIGINT SIGTERM
+
 __print () {
 	# if $1 is ignore: always print
 	# print message
@@ -35,18 +37,33 @@ __parseArgs () {
   __parsed="$@"
   # parse tags
   for arg in $__parsed; do
-    if [ "$arg" = "-v" ]; then
-      VERBOSE=1
-      __print ignore "verbose mode"
-      __parsed=$(echo $__parsed | sed "s/$arg//")
-    fi
-    if [ "$arg" = "-s" ]; then
-      SILENCE=1
-      __parsed=$(echo $__parsed | sed "s/$arg//")
-    fi
-    if [ "$arg" = "--dry-run" ]; then
-      VERBOSE=2
-      __parsed=$(echo $__parsed | sed "s/$arg//")
+    # if [ "$arg" = "-v" ]; then
+    #   VERBOSE=1
+    #   __print ignore "verbose mode"
+    #   __parsed=$(echo $__parsed | sed "s/$arg//")
+    # fi
+    # if [ "$arg" = "-s" ]; then
+    #   SILENCE=1
+    #   __parsed=$(echo $__parsed | sed "s/$arg//")
+    # fi
+    # if [ "$arg" = "--dry-run" ]; then
+    #   VERBOSE=2
+    #   __parsed=$(echo $__parsed | sed "s/$arg//")
+    # fi
+    case $arg in
+      -v|--verbose) 
+        VERBOSE=1
+        __print ignore "verbose mode" 
+        __parsed=$(echo $__parsed | sed "s/$arg//")
+        ;;
+      -s|--silence) SILENCE=1; __parsed=$(echo $__parsed | sed "s/$arg//") ;;
+      -g|--graphical) GRAPHICAL=1; __parsed=$(echo $__parsed | sed "s/$arg//") ;;
+      --dry-run) VERBOSE=2; __parsed=$(echo $__parsed | sed "s/$arg//") ;;
+      *) ;;
+    esac
+
+    if [ "$arg" = "-"** ]; then
+      __parsed=$(echo $__parsed | sed "s/ $arg//")
     fi
   done
 }
@@ -58,48 +75,56 @@ __detectPackageManager () {
   if [ -x "$(which pacman 2>&1)" ]; then
     pm="pacman"
     pm_install="-S"
+    pm_remove="-R"
     pm_noprompt="--noconfirm"
   fi
   # apt-get
   if [ -x "$(which apt-get 2>&1)" ]; then
     pm="apt-get"
     pm_install="install"
+    pm_remove="purge"
     pm_noprompt="-y"
   fi
   # emerge
   if [ -x "$(which emerge 2>&1)" ]; then
     pm="emerge"
     pm_install=""
+    pm_remove="unmerge"
     pm_noprompt="-v"
   fi
   # yum
   if [ -x "$(which yum 2>&1)" ]; then
     pm="yum"
     pm_install="install"
+    pm_remove="remove"
     pm_noprompt="-y"
   fi
   # zypper
   if [ -x "$(which zypper 2>&1)" ]; then
     pm="zypper"
     pm_install="install"
+    pm_remove="remove"
     pm_noprompt="-y"
   fi
   # dnf
   if [ -x "$(which dnf 2>&1)" ]; then
     pm="dnf"
     pm_install="install"
+    pm_remove="remove"
     pm_noprompt="-y"
   fi
   # apk
   if [ -x "$(which apk 2>&1)" ]; then
     pm="apk"
     pm_install="add"
+    pm_remove="remove"
     pm_noprompt=""
   fi
   # apt-get
   if [ -x "$(which apt-get 2>&1)" ]; then
     pm="apt-get"
     pm_install="install"
+    pm_remove="purge"
     pm_noprompt="-y"
   fi
 

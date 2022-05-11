@@ -58,11 +58,20 @@ files () {
 
 ## this is the replacement for files
 scripts () {
-	for script in $(find ./scripts/ -type f | sort -n); do
+	# only 1 level
+	for script in $(find ./scripts/ -type f -maxdepth 1 | sort -n); do
 		__print "# running ${script##*/}"
 		. $CWD/$script
 		_script_main $@
 	done
+	# if $GRAPHICAL is set to 1, do it again but in ./scripts/graphical
+	if [ $GRAPHICAL -eq 1 ]; then
+		for script in $(find ./scripts/graphical/ -type f -maxdepth 1 | sort -n); do
+			__print "# running [GRAPHICAL] ${script##*/}"
+			. $CWD/$script
+			_script_main $@
+		done
+	fi
 }
 
 clean () {
@@ -76,6 +85,9 @@ clean () {
 		. $CWD/$script
 		_script_clean $@
 	done
+
+	__print "# cleaning applications"
+	__verbose $DO_AS_SU $pm $pm_remove $PACKAGES
 }
 
 empty () {

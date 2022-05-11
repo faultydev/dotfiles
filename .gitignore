@@ -1,5 +1,6 @@
-.git/*
-
 # compacted files
 *.tar
 *.xz
+
+# any vscode files
+.vscode

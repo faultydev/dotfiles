@@ -30,6 +30,10 @@ _script_main () {
   copyFiles
 }
 
+_script_update () {
+  _script_main
+}
+
 _script_clean () {
   for file in $lnFiles; do
     __print "# removing ${file}"

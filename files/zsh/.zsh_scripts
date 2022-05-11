@@ -28,3 +28,20 @@ rando () {
 		s|special) tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c $2  ; echo ;;
 	esac
 }
+
+touchx () {
+	case $1 in
+		--shebang) content="#!/bin/sh"; file=$2 ;;
+		*) file=$1 ;;
+	esac
+	if [ -s $file ]; then
+		printf 'file exists'
+		return
+	fi
+	touch $file
+	if [ -n "$content" ]; then
+		printf '%s\n' $content >> $file
+	fi
+	chmod +x $file
+	printf '%s' $file
+}
