@@ -117,7 +117,7 @@ __detectPackageManager () {
   if [ -x "$(which apk 2>&1)" ]; then
     pm="apk"
     pm_install="add"
-    pm_remove="remove"
+    pm_remove="del"
     pm_noprompt=""
   fi
   # apt-get

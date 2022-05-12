@@ -45,7 +45,7 @@ git clone "$GIT_URL" ~/.local/dotfiles
 cd ~/.local/dotfiles
 
 echo "<$0> executing sync.sh"
-sh sync.sh
+sh sync.sh "$@"
 
 echo "<$0> done"
 cd "$ORIGIN"
