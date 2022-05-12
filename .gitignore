@@ -2,5 +2,11 @@
 *.tar
 *.xz
 
+#tmpfiles
+*.tmp
+
 # any vscode files
 .vscode
+
+# copied tools
+minify.sh
