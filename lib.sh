@@ -37,19 +37,6 @@ __parseArgs () {
   __parsed="$@"
   # parse tags
   for arg in $__parsed; do
-    # if [ "$arg" = "-v" ]; then
-    #   VERBOSE=1
-    #   __print ignore "verbose mode"
-    #   __parsed=$(echo $__parsed | sed "s/$arg//")
-    # fi
-    # if [ "$arg" = "-s" ]; then
-    #   SILENCE=1
-    #   __parsed=$(echo $__parsed | sed "s/$arg//")
-    # fi
-    # if [ "$arg" = "--dry-run" ]; then
-    #   VERBOSE=2
-    #   __parsed=$(echo $__parsed | sed "s/$arg//")
-    # fi
     case $arg in
       -v|--verbose) 
         VERBOSE=1
