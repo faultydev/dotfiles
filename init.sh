@@ -3,8 +3,8 @@
 trap 'echo "Interrupted by user"; exit' SIGINT SIGTERM
 
 # dependency check; git 
-if [ -z "$(which git 2>&1)" ]; then
-  __print "please install \"git\""
+if [ ! -x "$(command -v git)" ]; then
+  echo "git is not installed, please install it first"
   exit 1
 fi
 
@@ -19,7 +19,7 @@ for GIT in $GITS; do
 done
 
 if [ -z "$GIT_URL" ]; then
-  __print "no git reachable"
+  echo "no git reachable"
   exit 1
 fi
 

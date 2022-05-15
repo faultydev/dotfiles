@@ -2,7 +2,7 @@
 
 # packages to install
 # generally the package names are universal
-PACKAGES="zsh neovim kitty alsa-utils"
+PACKAGES="zsh neovim kitty"
 
 # this string is used when the operating system couldn't be determined
 FALLBACK_INSTALL_STRING="pacman -S --noconfirm"
