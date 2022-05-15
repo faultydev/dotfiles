@@ -59,14 +59,14 @@ files () {
 ## this is the replacement for files
 scripts () {
 	# only 1 level
-	for script in $(find ./scripts/ -type f -maxdepth 1 | sort -n); do
+	for script in $(find ./scripts/ -maxdepth 1 -type f | sort -n); do
 		__print "# running ${script##*/}"
 		. $CWD/$script
 		_script_main $@
 	done
 	# if $GRAPHICAL is set to 1, do it again but in ./scripts/graphical
 	if [ $GRAPHICAL -eq 1 ]; then
-		for script in $(find ./scripts/graphical/ -type f -maxdepth 1 | sort -n); do
+		for script in $(find ./scripts/graphical/ -maxdepth 1 -type f | sort -n); do
 			__print "# running [GRAPHICAL] ${script##*/}"
 			. $CWD/$script
 			_script_main $@
