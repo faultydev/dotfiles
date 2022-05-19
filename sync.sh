@@ -97,7 +97,7 @@ clean () {
 	__print "# cleaning pfetch tmp dir"
 	__verbose rm -rf /tmp/dotfiles-pfetch
 
-	for script in $(find ./scripts/ -type f -maxdepth 1 | sort -n); do
+	for script in $(find ./scripts/ -maxdepth 1 -type f | sort -n); do
 		__print "\e[0;33m>> cleaning ${script##*/}\e[0m"
 		. $CWD/$script
 		_script_clean
@@ -105,7 +105,7 @@ clean () {
 	done
 	
 	if [ $GRAPHICAL -eq 1 ]; then
-		for script in $(find ./scripts/graphical/ -type f -maxdepth 1 | sort -n); do
+		for script in $(find ./scripts/graphical/ -maxdepth 1 -type f | sort -n); do
 			__print "\e[0;33m>> cleaning \e[1;33m[GRAPHICAL] \e[0;33m${script##*/}\e[0m"
 			. $CWD/$script
 			_script_clean

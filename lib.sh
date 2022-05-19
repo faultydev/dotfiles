@@ -150,8 +150,9 @@ __error_trap () {
 __doSyncCheck () {
 	# check if sudo is open
 	if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ] && [ "$1" != "-v" ]; then
-    __print ignore "no sudo access (you need persitent sudo)"
-    sudo echo "sudo access granted"
+    # red
+    __print "\e[1;31m[sudo]\e[0m not open\e[0m"
+    sudo echo -e "\e[1;32m[sudo]\e[0m open\e[0m"
     #check again
     if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ]; then
       exit 1
