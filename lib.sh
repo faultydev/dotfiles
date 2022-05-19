@@ -4,17 +4,21 @@ CWD=$(pwd)
 VERBOSE=0
 SILENCE=0
 
+set -e
 trap '__print "Exiting..."; exit' SIGINT SIGTERM
+trap '__error_trap $LINENO $BASH_SOURCE "$BASH_COMMAND" $?' ERR
+trap 'if [ $? -ne 0 ]; then __error_trap $LINENO $BASH_SOURCE "$BASH_COMMAND" $?; fi' EXIT
+trap '__print "Interrupted..."; exit' SIGINT SIGTERM
 
 __print () {
 	# if $1 is ignore: always print
 	# print message
 	if [ "$1" = "ignore" ]; then
-		echo "$@" | cut -c8-
+		echo -e "$@" | cut -c8-
 		return
 	fi
 	if [ "$SILENCE" = "0" ]; then
-		echo $@
+		echo -e $@
 	fi
 }
 
@@ -24,12 +28,16 @@ __verbose () {
 		$@ > /dev/null 2>&1
 	fi
 	if [ "$VERBOSE" = "1" ]; then
-		__print "[ $@ ]"
+		__print "\e[1;33m[ \e[0;33m$@\e[1;33m ] \e[0m"
 		$@
 	fi
 	if [ "$VERBOSE" = "2" ]; then
-		echo "[ dry: $@ ]"
+		__print "\e[1;33m[ dry: \e[0;33m$@ \e[1;33m]\e[0m"
 	fi
+  if [ $? -ne 0 ]; then
+    __error_trap $LINENO $BASH_SOURCE "$@" $?
+    return 1
+  fi
 	wait
 }
 
@@ -125,6 +133,18 @@ __detectPackageManager () {
       exit 1
     fi
   fi
+}
+
+__error_trap () {
+  # $1: line number
+  # $2: source file
+  # $3: command
+  # $4: exit code of failed command
+  # $5: error code of main process (optional)
+  __print "\e[1;31m!! Error !!\e[0m"
+  __print "$2 @ line $1"
+  __print "$3 -> $4"
+  exit ${5:-1}
 }
 
 __doSyncCheck () {
