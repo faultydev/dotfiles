@@ -18,6 +18,8 @@ alias open="xdg-open"
 alias nobeep="sudo modprobe -r pcspkr"
 alias bl="sudo light -S"
 alias kssh="kitty +kitten ssh"
+alias get_idf='. $HOME/esp/esp-idf/export.sh'
+alias get_rust='. $HOME/.cargo/env'
 
 # COSMETICS
 if [ $_ZSH_PREF_NO_PFETCH != 1 ]; then pfetch; fi

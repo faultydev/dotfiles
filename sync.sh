@@ -40,10 +40,13 @@ setDefaults () {
 	if [ "$SHELL" != "/bin/zsh" ]; then
 		__verbose $DO_AS_SU chsh -s /bin/zsh $(whoami)
 	fi
-	__print "# setting tap to click (for laptops)"
-	__verbose xinput set-prop 'ALP0016:00 044E:1215' 'libinput Tapping Enabled' 1
-	__print "# setting up natural scolling"
-	__verbose xinput set-prop 'ALP0016:00 044E:1215' 'libinput Natural Scrolling Enabled' 1
+
+	if [ $GRAPHICAL -eq 1 ]; then
+		__print "# setting tap to click (for laptops)"
+		__verbose xinput set-prop 'ALP0016:00 044E:1215' 'libinput Tapping Enabled' 1
+		__print "# setting up natural scolling"
+		__verbose xinput set-prop 'ALP0016:00 044E:1215' 'libinput Natural Scrolling Enabled' 1
+	fi
 }
 
 ## deprecated; use scripts
@@ -75,19 +78,30 @@ scripts () {
 }
 
 clean () {
-	__print "# cleaning awesome-copycats tmp dir"
-	__verbose rm -rf /tmp/awesome-copycats
+	if [ $GRAPHICAL -eq 1 ]; then
+		__print "# cleaning awesome-copycats tmp dir"
+		__verbose rm -rf /tmp/awesome-copycats
+	fi
+	
 	__print "# cleaning pfetch tmp dir"
 	__verbose rm -rf /tmp/dotfiles-pfetch
 
-	for script in $(find ./scripts/ -type f | sort -n); do
-		__print "# running ${script##*/} cleanup"
+	for script in $(find ./scripts/ -type f -maxdepth 1 | sort -n); do
+		__print "# cleaning ${script##*/} cleanup"
 		. $CWD/$script
-		_script_clean $@
+		_script_clean
 	done
+	
+	if [ $GRAPHICAL -eq 1 ]; then
+		for script in $(find ./scripts/graphical/ -type f -maxdepth 1 | sort -n); do
+			__print "# cleaning [GRAPHICAL] ${script##*/} cleanup"
+			. $CWD/$script
+			_script_clean
+		done
+	fi
 
 	__print "# cleaning applications"
-	__verbose $DO_AS_SU $pm $pm_remove $PACKAGES
+	__verbose $DO_AS_SU $pm $pm_remove $pm_noprompt $PACKAGES
 }
 
 empty () {
