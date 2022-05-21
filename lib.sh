@@ -3,29 +3,41 @@
 CWD=$(pwd)
 VERBOSE=0
 SILENCE=0
+DEBUG=0
+USE_TRAPS=${USE_TRAPS:-1}
+LOG_FILE=${LOG_FILE:-/dev/null}
+
+VERSION="1.1"
 
 set -e
-trap '__print "Exiting..."; exit' SIGINT SIGTERM
-trap '__error_trap $LINENO $BASH_SOURCE "$BASH_COMMAND" $?' ERR
-trap 'if [ $? -ne 0 ]; then __error_trap $LINENO $BASH_SOURCE "$BASH_COMMAND" $?; fi' EXIT
-trap '__print "Interrupted..."; exit' SIGINT SIGTERM
 
 __print () {
 	# if $1 is ignore: always print
 	# print message
-	if [ "$1" = "ignore" ]; then
-		echo -e "$@" | cut -c8-
-		return
-	fi
-	if [ "$SILENCE" = "0" ]; then
-		echo -e $@
-	fi
+  case $1 in 
+    -i|--ignore|ignore)
+      shift;
+      echo -e "$@"
+    ;;
+    -d|--debug|debug)
+      shift;
+      if [ $DEBUG -eq 1 ]; then
+        echo -e "$@"
+      fi
+    ;;
+    *)
+      if [ "$SILENCE" = "0" ]; then
+        echo -e $@
+      fi
+    ;;
+  esac
+
 }
 
 __verbose () {
 	if [ "$VERBOSE" = "0" ]; then
 		#$@ 2>&1 > /dev/null #output only errors
-		$@ > /dev/null 2>&1
+		$@ > $LOG_FILE 2>&1
 	fi
 	if [ "$VERBOSE" = "1" ]; then
 		__print "\e[1;33m[ \e[0;33m$@\e[1;33m ] \e[0m"
@@ -34,32 +46,41 @@ __verbose () {
 	if [ "$VERBOSE" = "2" ]; then
 		__print "\e[1;33m[ dry: \e[0;33m$@ \e[1;33m]\e[0m"
 	fi
-  if [ $? -ne 0 ]; then
-    __error_trap $LINENO $BASH_SOURCE "$@" $?
-    return 1
-  fi
 	wait
+}
+
+__error () {
+  __print -i "\e[1;31m!! \e[0;31mERROR\e[1;31m !!\e[0m"
+  __print -i "error code: \e[1;33m$1\e[0m"
+  if [ "$2" != "" ]; then __print "\e[0;33m$2\e[0m" ; fi
+  if [ "$3" = "fatal" ]; then 
+    __print -i "\e[1;31m!! \e[0;31mFATAL\e[1;31m !!\e[0m"
+    exit 1
+  else
+    __print -i "\e[1;31m!! \e[0;31m-----\e[1;31m !!\e[0m"
+  fi
 }
 
 __parseArgs () {
   __parsed="$@"
   # parse tags
   for arg in $__parsed; do
+
+    if [ "${arg:0:1}" = "-" ]; then
+      __parsed=$(echo $__parsed | sed "s/$arg//")
+    fi
+
     case $arg in
       -v|--verbose) 
         VERBOSE=1
-        __print ignore "verbose mode" 
-        __parsed=$(echo $__parsed | sed "s/$arg//")
+        __print ignore "\e[1;31m:: \e[0;33mverbose\e[1;33m \e[0m"
         ;;
-      -s|--silence) SILENCE=1; __parsed=$(echo $__parsed | sed "s/$arg//") ;;
-      -g|--graphical) GRAPHICAL=1; __parsed=$(echo $__parsed | sed "s/$arg//") ;;
-      --dry-run) VERBOSE=2; __parsed=$(echo $__parsed | sed "s/$arg//") ;;
+      -s|--silence) SILENCE=1 ;;
+      -g|--graphical) GRAPHICAL=1 ;;
+      --dry-run) VERBOSE=2 ;;
+      -d) DEBUG=1 ;;
       *) ;;
     esac
-
-    if [ "$arg" = "-"** ]; then
-      __parsed=$(echo $__parsed | sed "s/ $arg//")
-    fi
   done
 }
 
@@ -135,47 +156,47 @@ __detectPackageManager () {
   fi
 }
 
-__error_trap () {
-  # $1: line number
-  # $2: source file
-  # $3: command
-  # $4: exit code of failed command
-  # $5: error code of main process (optional)
-  __print "\e[1;31m!! Error !!\e[0m"
-  __print "$2 @ line $1"
-  __print "$3 -> $4"
-  exit ${5:-1}
-}
-
 __doSyncCheck () {
-	# check if sudo is open
-	if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ] && [ "$1" != "-v" ]; then
-    # red
-    __print "\e[1;31m[sudo]\e[0m not open\e[0m"
-    sudo echo -e "\e[1;32m[sudo]\e[0m open\e[0m"
-    #check again
-    if [ "$(sudo -n uptime 2>&1 | grep "load" | wc -l)" -eq 0 ]; then
-      exit 1
-		fi
-	fi
+  #check if root
+  if [ "$(id -u)" != "0" ]; then
+    #check for sudo/doas/etc session
+    if ! $DO_AS_SU -n true; then
+      __error sudo_check "sudo session not found, persist is required"
+      $DO_AS_SU whoami
+      __doSyncCheck
+    else
+      __print -d ":: DEBUG, sudo session OK"
+    fi
+  else 
+    DO_AS_SU=""
+    __print -d ":: DEBUG, root login OK"
+  fi
+
 	# cwd
 	if [ ! -d $CWD ]; then
 		__print ignore "Current working directory is invalid" 1>&2
 		exit 1
 	fi
-	# check if script is in cwd
+	
+  # check if script is in cwd
 	if [ ! -f "${CWD}/sync.sh" ]; then
 		__print ignore "sync.sh not found in ${CWD}" 1>&2
 		exit 1
 	fi
-	# check if dir configfiles exists
+	
+  # check if dir configfiles exists
 	if [ ! -d "${CWD}/files" ]; then
 		__print ignore "configfiles directory not found in ${CWD}" 1>&2
 		exit 1
 	fi
-	# check for git
+	
+  # check for git
 	if [ ! -x "$(which git)" ]; then
 		__print ignore "git not found, added to packages" 1>&2
 		PACKAGES="${PACKAGES} git"
 	fi
 }
+
+if [ $USE_TRAPS -eq 1 ]; then
+  trap '__print "Interrupted..."; exit' SIGINT SIGTERM
+fi
