@@ -1,7 +1,7 @@
 #!/bin/sh
 
-. ./cfg.sh
-. ./lib.sh
+. ../cfg.sh
+. ../lib.sh
 
 createBackup () {
   cd ~

@@ -1,9 +1,0 @@
-pkgname='dotfiles'
-pkgver='1.1'
-pkgrel=1
-pkgdesc='bunch of files and scripts that make the system awesome'
-arch=('x86_64')
-url='https://git.faulty.nl/faulty/dotfiles'
-license=('MIT')
-depends=('git')
-install='tool.sh install'
