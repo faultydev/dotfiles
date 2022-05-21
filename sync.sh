@@ -136,12 +136,8 @@ full_clean () {
 
 empty () {
 	__print "\e[0;33m## empty ##\e[0m"
-}
-
-falseError () {
-	__print "test error"
-	# run command that should fail
-	__verbose which idontexist
+	__error empty_regular "this ia a test"
+	__error empty_fatal "this is a test" fatal
 }
 
 ####
