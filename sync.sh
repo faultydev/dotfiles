@@ -142,6 +142,8 @@ empty () {
 
 ####
 
+__gitSync
+
 __parseArgs $@
 run="$__parsed"
 

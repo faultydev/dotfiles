@@ -197,6 +197,15 @@ __doSyncCheck () {
 	fi
 }
 
+__gitSync () {
+  # check if cwd is git repo
+  if [ ! -d "${CWD}/.git" ]; then
+    __error git_check "not a git repository"
+    return
+  fi
+  __verbose git pull
+}
+
 if [ $USE_TRAPS -eq 1 ]; then
   trap '__print "Interrupted..."; exit' SIGINT SIGTERM
 fi
