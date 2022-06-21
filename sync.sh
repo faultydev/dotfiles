@@ -50,10 +50,10 @@ setDefaults () {
 	fi
 
 	__print "# setting up \e[1;32mgit\e[0m"
-	__verbose git config --global user.name $GIT_USER_NAME
-	__verbose git config --global user.email $GIT_USER_EMAIL
+	__verbose git config --global user.name "$GIT_USER_NAME"
+	__verbose git config --global user.email "$GIT_USER_EMAIL"
 	__verbose git config --global core.editor "vim"
-	if [ $GPG_SIGNING_KEY ]; then
+	if [ ! -z $GPG_SIGNING_KEY ]; then
 		__verbose git config --global commit.gpgsign true
 		__verbose git config --global user.signingkey $GPG_SIGNING_KEY
 	fi
@@ -75,7 +75,7 @@ scripts () {
 	for script in $(find ./scripts/ -maxdepth 1 -type f | sort -n); do
 		__print "\e[0;33m>> running ${script##*/}\e[0m"
 		. $CWD/$script
-		_script_main $@
+		_script_main "$@"
 		__print "\e[0;32m>> done ${script##*/}\e[0m"
 	done
 	# if $GRAPHICAL is set to 1, do it again but in ./scripts/graphical
@@ -84,7 +84,7 @@ scripts () {
 			# __print ">> running [GRAPHICAL] ${script##*/}"
 			__print "\e[0;33m>> running \e[1;33m[GRAPHICAL] \e[0;33m${script##*/}\e[0m"
 			. $CWD/$script
-			_script_main $@
+			_script_main "$@"
 			# __print ">> finished [GRAPHICAL] ${script##*/}"
 			__print "\e[0;32m>> finished \e[1;33m[GRAPHICAL] \e[0;32m${script##*/}\e[0m"
 		done
@@ -143,7 +143,7 @@ empty () {
 ####
 
 
-__parseArgs $@
+__parseArgs "$@"
 run="$__parsed"
 
 if [ $DO_GIT_SYNC = 1 ]; then __gitSync $1; fi
@@ -154,7 +154,7 @@ if [ -z "$run" ]; then
 		run="pm_packages ext_packages setDefaults $run"
 	fi
 fi
-__doSyncCheck $1
+__doSyncCheck "$1"
 
 # for every item in run, run it (not an array but string, split by spaces)
 for item in $run; do

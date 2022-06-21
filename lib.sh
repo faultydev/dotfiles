@@ -30,7 +30,7 @@ __print () {
     ;;
     *)
       if [ "$SILENCE" = "0" ]; then
-        echo -e $@
+        echo -e "$@"
       fi
     ;;
   esac
@@ -70,7 +70,7 @@ __parseArgs () {
   for arg in $__parsed; do
 
     if [ "${arg:0:1}" = "-" ]; then
-      __parsed=$(echo $__parsed | sed "s/$arg//")
+      __parsed="$(echo $__parsed | sed "s/$arg//")"
     fi
 
     case $arg in
@@ -228,5 +228,5 @@ __gitSync () {
   fi
 }
 
-trap '__print ignore "Interrupted..."; exit' SIGINT SIGTERM
-trap 'if [ $? -ne 0 ]; then __error non_zero_exit "an error occured" fatal; fi' ERR EXIT
+# trap '__print ignore "Interrupted..."; exit' SIGINT SIGTERM
+# trap 'if [ $? -ne 0 ]; then __error non_zero_exit "an error occured" fatal; fi' ERR EXIT
