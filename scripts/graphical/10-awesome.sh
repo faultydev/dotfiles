@@ -11,8 +11,10 @@ installAwesome () {
 }
 
 _script_main () {
-  installAwesome
-  _script_update
+  if [ $WINDOW_MANAGER = "awesome" ]; then
+    installAwesome
+    _script_update
+  fi
 }
 
 _script_update () {

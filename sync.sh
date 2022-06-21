@@ -4,8 +4,8 @@
 . ./lib.sh
 
 # ---------- ------ ---------- #
-# Version:   1.1 | Fine Line
-# Last edit: 20th of May
+# Version:   2.0 | Cinema
+# Last edit: 23th of May
 # ---------------------------- #
 
 pm_packages () {
@@ -34,6 +34,7 @@ ext_packages () {
 	fi
 
 	__print "# installing pfetch"
+	__verbose rm -rf /tmp/dotfiles-pfetch
 	__verbose git clone https://github.com/dylanaraps/pfetch.git /tmp/dotfiles-pfetch
 	__verbose cd /tmp/dotfiles-pfetch
 	__verbose $DO_AS_SU mv pfetch /usr/local/bin/
@@ -136,20 +137,22 @@ full_clean () {
 
 empty () {
 	__print "\e[0;33m## empty ##\e[0m"
-	__error empty_regular "this ia a test"
-	__error empty_fatal "this is a test" fatal
+	__error empty_regular "this is a test"
 }
 
 ####
 
-__gitSync
 
 __parseArgs $@
 run="$__parsed"
 
+if [ $DO_GIT_SYNC = 1 ]; then __gitSync $1; fi
 # if no items in run, run def
 if [ -z "$run" ]; then
-	run="pm_packages ext_packages setDefaults scripts"
+	run="scripts"
+	if [ $USE_SUDO = 1 ]; then
+		run="pm_packages ext_packages setDefaults $run"
+	fi
 fi
 __doSyncCheck $1
 

@@ -21,7 +21,10 @@ else
   DO_AS_SU="${DO_AS_SU:-sudo}"
 fi
 
-GRAPHICAL=0
+# script options
+GRAPHICAL=${GRAPHICAL:-0}
+USE_SUDO=${USE_SUDO:-1}
+DO_GIT_SYNC=${DO_GIT_SYNC:-1}
 
 GIT_USER_NAME="${GIT_USER_NAME:-faulty}"
 GIT_USER_EMAIL="${GIT_USER_EMAIL:-didier@faulty.nl}"

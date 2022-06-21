@@ -10,7 +10,7 @@ linkFiles () {
   done
 }
 
-configAvail="awesome kitty nvim"
+configAvail="awesome i3 kitty nvim"
 
 _script_main () {
   for c in $configAvail; do

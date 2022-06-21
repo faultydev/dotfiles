@@ -27,7 +27,7 @@ cd ~/.local/dotfiles
 ./sync.sh -g scripts # run sync for graphical scripts (e.g. update awesome-wm)
 ```
 ## Updating
-Starting from [1cf5e207ab](https://git.faulty.nl/faulty/dotfiles/commit/1cf5e207ab8409e7bc13e0f9fb81a5df63037507) this isn't necessary anymore.  
+Starting from [1cf5e207ab](https://git.faulty.nl/faulty/dotfiles/commit/1cf5e207ab8409e7bc13e0f9fb81a5df63037507) this isn't necessary anymore. *(please read docs/config.md for further information)*  
 The script will automatically update itself when being run.
 ```sh
 cd ~/.local/dotfiles

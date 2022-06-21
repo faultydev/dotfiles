@@ -1,13 +1,12 @@
 #!/bin/sh
 
 CWD=$(pwd)
+LOG_FILE=${LOG_FILE:-/dev/null}
 VERBOSE=0
 SILENCE=0
 DEBUG=0
-USE_TRAPS=${USE_TRAPS:-1}
-LOG_FILE=${LOG_FILE:-/dev/null}
 
-VERSION="1.1"
+VERSION="2.0"
 
 set -e
 
@@ -24,6 +23,10 @@ __print () {
       if [ $DEBUG -eq 1 ]; then
         echo -e "$@"
       fi
+    ;;
+    -r|--raw)
+      shift;
+      echo -e -n "$@"
     ;;
     *)
       if [ "$SILENCE" = "0" ]; then
@@ -51,7 +54,7 @@ __verbose () {
 
 __error () {
   __print -i "\e[1;31m!! \e[0;31mERROR\e[1;31m !!\e[0m"
-  __print -i "error code: \e[1;33m$1\e[0m"
+  __print -i "error: \e[1;33m$1\e[0m"
   if [ "$2" != "" ]; then __print "\e[0;33m$2\e[0m" ; fi
   if [ "$3" = "fatal" ]; then 
     __print -i "\e[1;31m!! \e[0;31mFATAL\e[1;31m !!\e[0m"
@@ -157,31 +160,39 @@ __detectPackageManager () {
 }
 
 __doSyncCheck () {
-  #check if root
-  if [ "$(id -u)" != "0" ]; then
-    #check for sudo/doas/etc session
-    if ! $DO_AS_SU -n true; then
-      __error sudo_check "sudo session not found, persist is required"
-      $DO_AS_SU whoami
-      __doSyncCheck
-    else
-      __print -d ":: DEBUG, sudo session OK"
+  if [ $USE_SUDO = 1 ]; then
+    #check if root
+    if [ "$(id -u)" != "0" ]; then
+      #check for sudo/doas/etc session
+      if ! $DO_AS_SU -n true; then
+        __error "sudo_check \e[0m@ $LINENO" "sudo session not found, persist is required"
+        __print -d ":: DEBUG, $DO_AS_SU whoami: $($DO_AS_SU whoami)"
+        __doSyncCheck
+        return
+      else
+        __print -d ":: DEBUG, sudo session OK"
+      fi
+    else 
+      DO_AS_SU=""
+      __print -d ":: DEBUG, root login OK"
     fi
-  else 
-    DO_AS_SU=""
-    __print -d ":: DEBUG, root login OK"
   fi
 
 	# cwd
 	if [ ! -d $CWD ]; then
 		__print ignore "Current working directory is invalid" 1>&2
 		exit 1
+  else
+    __print -d ":: DEBUG, cwd OK"
 	fi
 	
+  # TODO: fix in 2.0 {
   # check if script is in cwd
 	if [ ! -f "${CWD}/sync.sh" ]; then
 		__print ignore "sync.sh not found in ${CWD}" 1>&2
 		exit 1
+  else
+    __print -d ":: DEBUG, sync.sh found in cwd"
 	fi
 	
   # check if dir configfiles exists
@@ -189,23 +200,33 @@ __doSyncCheck () {
 		__print ignore "configfiles directory not found in ${CWD}" 1>&2
 		exit 1
 	fi
+  # }
 	
   # check for git
 	if [ ! -x "$(which git)" ]; then
-		__print ignore "git not found, added to packages" 1>&2
+		__print "# git not found, added to packages" 1>&2
 		PACKAGES="${PACKAGES} git"
 	fi
 }
 
 __gitSync () {
+  __print -r ":: \e[1;32mGit\e[0m | checking for updates"
   # check if cwd is git repo
   if [ ! -d "${CWD}/.git" ]; then
     __error git_check "not a git repository"
     return
   fi
-  __verbose git pull
+  # get current hash
+  CURRENT_HASH=$(git rev-parse HEAD)
+  __verbose git pull origin master
+  if [ "$CURRENT_HASH" != "$(git rev-parse HEAD)" ] || [ "$1" = "--test" ]; then
+    __print -r "\r:: \e[1;32mGit \e[0m|\e[1;32m updated\e[0m"
+    __print -r "\n:: \e[0;33mPlease restart the script.\e[0m"
+    exit 0
+  else
+    __print -r "\r:: \e[1;32mGit \e[0m|\e[1;33m no changes\e[0m          \n"
+  fi
 }
 
-if [ $USE_TRAPS -eq 1 ]; then
-  trap '__print "Interrupted..."; exit' SIGINT SIGTERM
-fi
+trap '__print ignore "Interrupted..."; exit' SIGINT SIGTERM
+trap 'if [ $? -ne 0 ]; then __error non_zero_exit "an error occured" fatal; fi' ERR EXIT
