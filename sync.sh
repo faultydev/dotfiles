@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+# FIXME: currently the coed wont work with posix
 
 . ./cfg.sh
 . ./lib.sh

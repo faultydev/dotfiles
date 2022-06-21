@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CWD=$(pwd)
+CWD="$(pwd)"
 LOG_FILE=${LOG_FILE:-/dev/null}
 VERBOSE=0
 SILENCE=0
@@ -217,7 +217,7 @@ __gitSync () {
     return
   fi
   # get current hash
-  CURRENT_HASH=$(git rev-parse HEAD)
+  CURRENT_HASH="$(git rev-parse HEAD)"
   __verbose git pull origin master
   if [ "$CURRENT_HASH" != "$(git rev-parse HEAD)" ] || [ "$1" = "--test" ]; then
     __print -r "\r:: \e[1;32mGit \e[0m|\e[1;32m updated\e[0m"

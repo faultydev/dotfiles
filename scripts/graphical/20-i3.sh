@@ -1,5 +1,5 @@
 _script_main () {
-  if [ $WINDOW_MANAGER = "i3"]; then
+  if [ "$WINDOW_MANAGER" = "i3" ]; then
     __detectPackageManager
     if [ -z "$pm" ]; then
       __print "no package manager"
