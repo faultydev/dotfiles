@@ -4,7 +4,7 @@
 # all files from ./files/zsh/ need to be in ~/
 
 # relative to ./files/zsh/
-lnFiles=".zshrc .zsh_scripts"
+lnFiles=".zshrc .zsh_scripts .xinitrc"
 cpFiles=".zsh_preferences"
 
 linkFiles () {

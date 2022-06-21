@@ -6,7 +6,7 @@ _script_main () {
       return 1
     fi
     __print "installing i3 with $pm"
-    __verbose $DO_AS_SU $pm $pm_install $pm_noprompt i3 light dmenu 
+    __verbose $DO_AS_SU $pm $pm_install $pm_noprompt i3 light dmenu maim xclip 
 
   fi
 
